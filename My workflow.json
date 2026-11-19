@@ -1,0 +1,204 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        0
+      ],
+      "id": "90f8e5f8-3fb2-4766-8846-b6762d4ff444",
+      "name": "When clicking 'Execute workflow'"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1MhuJmIWxUpO867W63joZeRm-UUN5jDB31NeWBOxN4o4",
+          "mode": "list",
+          "cachedResultName": "Acounting details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MhuJmIWxUpO867W63joZeRm-UUN5jDB31NeWBOxN4o4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MhuJmIWxUpO867W63joZeRm-UUN5jDB31NeWBOxN4o4/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -64,
+        -96
+      ],
+      "id": "60a77a1a-7d34-4a55-aca7-24a112b3aac8",
+      "name": "Accounting details",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "mLDvyg6Oo6NvimsH",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1LfHRTmWL0Uo2f7F1ovnAZYWES_jyZvNOmm1mN3IlUOA",
+          "mode": "list",
+          "cachedResultName": "Banking",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LfHRTmWL0Uo2f7F1ovnAZYWES_jyZvNOmm1mN3IlUOA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LfHRTmWL0Uo2f7F1ovnAZYWES_jyZvNOmm1mN3IlUOA/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -64,
+        128
+      ],
+      "id": "d1eb5bcb-1bf7-403e-b441-78341282e8f5",
+      "name": "Banking",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "mLDvyg6Oo6NvimsH",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "haroonismail089@gmail.com",
+        "subject": "Attention Needed",
+        "message": "=Below are the records which are not matching with each other.\nTransaction Id:{{ $json.transactionReference }}   \n{{ $('Banking').item.json.row_number }}\n{{ $('Banking').item.json.transactionDate }}\n{{ $('Banking').item.json.transactionAmount }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        496,
+        0
+      ],
+      "id": "716683e0-d75b-481a-811b-99befd02663b",
+      "name": "Send message and wait for response",
+      "webhookId": "b6b2c5ca-e553-4f1e-a2ba-b7af2c666f21",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XsFnlmNhL9oVqu0v",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "Column 4",
+              "field2": "transactionReference"
+            }
+          ]
+        },
+        "fuzzyCompare": true,
+        "options": {
+          "skipFields": "transactionDescription"
+        }
+      },
+      "type": "n8n-nodes-base.compareDatasets",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        -16
+      ],
+      "id": "fa6900f6-25fa-4879-a810-15034aacd0d0",
+      "name": "Compare Datasets"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking 'Execute workflow'": {
+      "main": [
+        [
+          {
+            "node": "Accounting details",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Banking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Accounting details": {
+      "main": [
+        [
+          {
+            "node": "Compare Datasets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Banking": {
+      "main": [
+        [
+          {
+            "node": "Compare Datasets",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Compare Datasets": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [],
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f8ad32e7-37df-43b8-a972-f9f4d37f92fa",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "37e3a2abc0f895a75a01925c575e34bdcb3ff6bc29bd0523a32bfc361de8b1bc"
+  },
+  "nodeGroups": [],
+  "id": "c5luqxhudhzieUBY",
+  "tags": []
+}
